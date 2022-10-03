@@ -15,11 +15,14 @@
     "@emotion/server": "latest",
     "@emotion/styled": "latest",
     "@mui/icons-material": "latest",
+    "@mui/lab": "^5.0.0-alpha.101",
     "@mui/material": "latest",
+    "axios": "^0.27.2",
     "next": "latest",
     "prop-types": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-hook-form": "^7.36.1"
   },
   "devDependencies": {
     "eslint": "latest",
