@@ -4,7 +4,7 @@ import AuthInput from "../auth/input";
 import AuthBtn from "../auth/button";
 import { styled, Checkbox, FormControlLabel, Typography } from "@mui/material";
 import Image from "next/image";
-import LogoImg from "../public/logo.png";
+import LogoImg from "../public/hacker.png";
 import { useRouter } from "next/router";
 import axios from "axios";
 import validation from "../auth/validation";
@@ -12,7 +12,7 @@ import Wrapper from "../auth/wrapper";
 import FormHeader from "../auth/header";
 import Link from "next/link";
 import FormLink from "../auth/link";
-import Model from "../public/model.jpg";
+import Model from "../public/model.png";
 
 export const Logo = styled("div")(() => ({
   width: 80,
@@ -49,10 +49,13 @@ export const Side = styled("div")(({ theme }) => ({
   height: "95%",
   width: "95%",
   padding: 20,
-  background: "rgba(255,255,255,.35)",
   borderRadius: 20,
-  "@media screen and (min-width: 900px)": {},
+  display: "none",
+  "@media screen and (min-width: 900px)": {
+    display: "block",
+  },
   position: "relative",
+  backgroundColor: theme.palette.primary.main,
 }));
 
 function SignIn() {
@@ -87,11 +90,12 @@ function SignIn() {
       setLoading(true);
       let response = await axios.post(
         "http://localhost:8888/admin-signin",
-        formData
+        formData,
+        { withCredentials: true }
       );
       let data = await response.data;
       console.log(data);
-      if (data.success === true) router.push("/signup");
+      if (data.success === true) router.push("/dashboard");
       setError("password", {
         type: "server",
         message: data.error,

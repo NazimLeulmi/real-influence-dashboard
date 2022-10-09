@@ -3,11 +3,12 @@ import React from "react";
 // import MenuIcon from "@mui/icons-material/Menu";
 
 const Container = styled(Paper)(({ theme, color }) => ({
-  background: alpha(color, 0.45),
+  background: alpha(color, 0.75),
   height: 230,
-  margin: 10,
-  borderRadius: 10,
+  margin: 15,
+  borderRadius: 15,
   display: "flex",
+  flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
 }));
@@ -19,19 +20,25 @@ const Circle = styled(Paper)(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
   backgroundColor: "rgba(0,0,0,.05)",
+  marginBottom: 35,
 }));
-const Counter = styled(Typography)(({ theme }) => ({}));
+const Counter = styled(Typography)(({ theme }) => ({
+  marginBottom: 5,
+  fontWeight: "bold",
+  fontSize: 32,
+}));
 const Text = styled(Typography)(({ theme }) => ({
-  fontSize: 18,
+  fontSize: 16,
   fontWeight: 400,
 }));
 
-function CounterCard({ color, icon, counter }) {
+function CounterCard({ color, icon, counter, text }) {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   return (
     <Container color={color} elevation={1}>
       <Circle>{icon}</Circle>
       <Counter variant="h3">{counter}</Counter>
+      <Text>{text}</Text>
     </Container>
   );
 }

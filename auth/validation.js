@@ -14,6 +14,17 @@ const validation = {
       message: "The email is invalid",
     },
   },
+  username: {
+    required: { value: true, message: "The username is required" },
+    minLength: {
+      value: 3,
+      message: "The minimum length is 3 characters",
+    },
+    maxLength: {
+      value: 20,
+      message: "The maximum length is 20 characters",
+    },
+  },
   password: {
     required: { value: true, message: "The password is required" },
     minLength: {
