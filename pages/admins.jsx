@@ -10,7 +10,7 @@ import Rookie from "../public/rookie.png";
 import Super from "../public/super.png";
 import Image from "next/image";
 
-export default function Admins({ admins }) {
+export default function Admins({ admins, admin }) {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [open, setOpen] = React.useState(false); // alert dialog state
   const [adm, setAdmins] = React.useState(admins);
@@ -99,7 +99,7 @@ export default function Admins({ admins }) {
 
   async function deleteAdmin() {
     let response = await axios.post(
-      "http://localhost:8888/delete-admin",
+      "http://localhost:8888/admins/delete",
       { id: selected._id },
       { withCredentials: true }
     );
@@ -116,8 +116,12 @@ export default function Admins({ admins }) {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AlertDialog open={open} setOpen={setOpen} deleteAdmin={deleteAdmin} />
-      <Drawer openDrawer={openDrawer} setOpenDrawer={setOpenDrawer} />
+      <AlertDialog open={open} setOpen={setOpen} deleteFun={deleteAdmin} />
+      <Drawer
+        openDrawer={openDrawer}
+        setOpenDrawer={setOpenDrawer}
+        admin={admin}
+      />
       <Box sx={{ width: "100%" }}>
         <div style={{ height: "100%", width: "100%" }}>
           <DataGrid
@@ -138,6 +142,7 @@ export default function Admins({ admins }) {
     </Box>
   );
 }
+
 export async function getServerSideProps({ req }) {
   let response = await axios.get("http://localhost:8888/admins", {
     withCredentials: true,
@@ -146,11 +151,8 @@ export async function getServerSideProps({ req }) {
     },
   });
   let data = response.data;
-  if (data.success === true) {
-    return {
-      props: { admins: data.admins },
-    };
-  } else {
+  console.log(data.admin, "admins page");
+  if (data.admin === null || data.admins === null) {
     return {
       redirect: {
         permanent: false,
@@ -159,4 +161,7 @@ export async function getServerSideProps({ req }) {
       props: {},
     };
   }
+  return {
+    props: { admin: data.admin, admins: data.admins },
+  };
 }

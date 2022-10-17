@@ -89,7 +89,7 @@ function SignIn() {
       console.log(formData);
       setLoading(true);
       let response = await axios.post(
-        "http://localhost:8888/admin-signin",
+        "http://localhost:8888/admins/signin",
         formData,
         { withCredentials: true }
       );
@@ -162,13 +162,31 @@ function SignIn() {
           </Link>
         </Footer>
         <AuthBtn disabled={loading}>LOGIN</AuthBtn>
-        <FormLink href="/signup" />
       </Form>
       <Side>
         <Image src={Model} layout="fill" style={{ borderRadius: 20 }} />
       </Side>
     </Wrapper>
   );
+}
+export async function getServerSideProps({ req }) {
+  let response = await axios.get("http://localhost:8888/admins/check-auth", {
+    withCredentials: true,
+    headers: {
+      Cookie: req.headers.cookie ? req.headers.cookie : null,
+    },
+  });
+  let data = response.data;
+  console.log(data);
+  if (data.admin) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/dashboard",
+      },
+    };
+  }
+  return { props: {} };
 }
 
 export default SignIn;

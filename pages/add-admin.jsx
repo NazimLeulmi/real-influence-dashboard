@@ -35,7 +35,7 @@ const ImgContainer = styled(Box)(({ theme }) => ({
   borderRadius: 20,
 }));
 
-function SignUp() {
+function SignUp({ admin }) {
   const {
     control,
     watch,
@@ -70,7 +70,7 @@ function SignUp() {
       setLoading(true);
       console.log("admin form data", formData);
       let response = await axios.post(
-        "http://localhost:8888/admin-signup",
+        "http://localhost:8888/admins/signup",
         formData
       );
       let data = await response.data;
@@ -91,7 +91,7 @@ function SignUp() {
   }
   return (
     <Container>
-      <Drawer />
+      <Drawer admin={admin} />
       <Content>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Logo>
@@ -173,6 +173,25 @@ function SignUp() {
       </Content>
     </Container>
   );
+}
+
+export async function getServerSideProps({ req }) {
+  let response = await axios.get("http://localhost:8888/admins/check-auth", {
+    withCredentials: true,
+    headers: {
+      Cookie: req.headers.cookie,
+    },
+  });
+  let data = response.data;
+  if (data.admin === null || data.admin.super === false) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+    };
+  }
+  return { props: { admin: data.admin } };
 }
 
 export default SignUp;

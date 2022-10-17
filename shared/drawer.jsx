@@ -20,6 +20,8 @@ import {
   PersonAdd,
 } from "@mui/icons-material";
 import Logo from "../public/hacker.png";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 const MyDrawer = styled(Drawer)(({ theme }) => ({
   minWidth: 300,
@@ -43,7 +45,20 @@ const Header = styled("div")(({ theme }) => ({
   alignItems: "center",
 }));
 
-function SideNav({ openDrawer, setOpenDrawer }) {
+function SideNav({ openDrawer, setOpenDrawer, admin }) {
+  const router = useRouter();
+
+  async function logout() {
+    const response = await axios.post(
+      "http://localhost:8888/signout",
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+    let data = response.data;
+    if (data.success) router.push("/");
+  }
   return (
     <MyDrawer
       anchor="left"
@@ -62,7 +77,7 @@ function SideNav({ openDrawer, setOpenDrawer }) {
       <Header>
         <Image src={Logo} height={45} width={45} layout="intrinsic" />
         <Typography variant="h5" style={{ marginLeft: 10 }}>
-          Nazim
+          {admin.username}
         </Typography>
       </Header>
       <List>
@@ -86,7 +101,7 @@ function SideNav({ openDrawer, setOpenDrawer }) {
             </Link>
           </ListItemButton>
         </ListItem>
-        <ListItem disablePadding>
+        {/* <ListItem disablePadding>
           <ListItemButton>
             <ListItemIcon>
               <People fontSize="medium" />
@@ -95,36 +110,42 @@ function SideNav({ openDrawer, setOpenDrawer }) {
               <ListItemText>Users</ListItemText>
             </Link>
           </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <AdminPanelSettings fontSize="medium" />
-            </ListItemIcon>
-            <Link href="/admins">
-              <ListItemText>Admins</ListItemText>
-            </Link>
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <PersonAdd fontSize="medium" />
-            </ListItemIcon>
-            <Link href="/add-admin">
-              <ListItemText>Add Admin</ListItemText>
-            </Link>
-          </ListItemButton>
-        </ListItem>
+        </ListItem> */}
+        {admin.super && (
+          <>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <AdminPanelSettings fontSize="medium" />
+                </ListItemIcon>
+                <Link href="/admins">
+                  <ListItemText>Admins</ListItemText>
+                </Link>
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <PersonAdd fontSize="medium" />
+                </ListItemIcon>
+                <Link href="/add-admin">
+                  <ListItemText>Add Admin</ListItemText>
+                </Link>
+              </ListItemButton>
+            </ListItem>
+          </>
+        )}
       </List>
-      <ListItem disablePadding sx={{ marginTop: "auto", marginBottom: "20px" }}>
+      <ListItem
+        disablePadding
+        sx={{ marginTop: "auto", marginBottom: "20px" }}
+        onClick={logout}
+      >
         <ListItemButton>
           <ListItemIcon>
             <Logout fontSize="medium" />
           </ListItemIcon>
-          <Link href="#">
-            <ListItemText>Logout</ListItemText>
-          </Link>
+          <ListItemText>Logout</ListItemText>
         </ListItemButton>
       </ListItem>
     </MyDrawer>

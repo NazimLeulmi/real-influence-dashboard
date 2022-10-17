@@ -12,6 +12,7 @@ import LineChart from "../charts/LineChart";
 import PieChart from "../charts/PieChart";
 import UploadsData from "../data/uploads";
 import { Box } from "@mui/material";
+import axios from "axios";
 
 const Container = styled("main")(({ theme }) => ({
   width: "100vw",
@@ -30,7 +31,7 @@ const Content = styled(Box)(({ theme }) => ({
   overflow: "scroll",
 }));
 
-function Dashboard() {
+function Dashboard({ admin }) {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [data, setData] = React.useState({
     labels: UploadsData.map((data) => data.month),
@@ -52,7 +53,11 @@ function Dashboard() {
   });
   return (
     <Container>
-      <Drawer openDrawer={openDrawer} setOpenDrawer={setOpenDrawer} />
+      <Drawer
+        openDrawer={openDrawer}
+        setOpenDrawer={setOpenDrawer}
+        admin={admin}
+      />
       <Content>
         <Grid container spacing={0}>
           <Grid xs={6}>
@@ -106,6 +111,26 @@ function Dashboard() {
       </Content>
     </Container>
   );
+}
+
+export async function getServerSideProps({ req }) {
+  let response = await axios.get("http://localhost:8888/admins/check-auth", {
+    withCredentials: true,
+    headers: {
+      Cookie: req.headers.cookie,
+    },
+  });
+  let data = response.data;
+  console.log(data.admin);
+  if (data.admin === null) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+    };
+  }
+  return { props: { admin: data.admin } };
 }
 
 export default Dashboard;

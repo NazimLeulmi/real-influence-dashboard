@@ -6,7 +6,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
-function AlertDialog({ open, setOpen, deleteAdmin }) {
+function AlertDialog({ open, setOpen, deleteFun }) {
   return (
     <Dialog
       open={open}
@@ -24,7 +24,7 @@ function AlertDialog({ open, setOpen, deleteAdmin }) {
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setOpen(false)}>DECLINE</Button>
-        <Button onClick={deleteAdmin} autoFocus>
+        <Button onClick={deleteFun} autoFocus>
           CONFIRM
         </Button>
       </DialogActions>
