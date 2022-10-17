@@ -114,7 +114,7 @@ function Dashboard({ admin }) {
 }
 
 export async function getServerSideProps({ req }) {
-  let response = await axios.get("http://localhost:8888/admins/check-auth", {
+  let response = await axios.get("https://localhost:8888/admins/check-auth", {
     withCredentials: true,
     headers: {
       Cookie: req.headers.cookie,

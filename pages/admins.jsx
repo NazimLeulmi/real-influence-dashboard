@@ -99,7 +99,7 @@ export default function Admins({ admins, admin }) {
 
   async function deleteAdmin() {
     let response = await axios.post(
-      "http://localhost:8888/admins/delete",
+      "https://localhost:8888/admins/delete",
       { id: selected._id },
       { withCredentials: true }
     );
@@ -144,7 +144,7 @@ export default function Admins({ admins, admin }) {
 }
 
 export async function getServerSideProps({ req }) {
-  let response = await axios.get("http://localhost:8888/admins", {
+  let response = await axios.get("https://localhost:8888/admins", {
     withCredentials: true,
     headers: {
       Cookie: req.headers.cookie,

@@ -9,23 +9,24 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Image from "next/image";
 import AlertDialog from "../shared/alert";
+import Rabbit from "../public/rabbit.png";
 
-export default function Influencers({ influencers, admin }) {
+export default function Users({ users: usersData, admin }) {
   const [openDrawer, setOpenDrawer] = React.useState(false);
-  const [inf, setInf] = React.useState(influencers);
+  const [users, setUsers] = React.useState(usersData);
   const [open, setOpen] = React.useState(false); // alert dialog state
   const [selected, setSelected] = React.useState(null);
 
   const columns = [
     {
-      field: "profileImg",
+      field: "img",
       headerName: "Picture",
       sortable: false,
       width: 65,
       renderCell: (params) => {
         return (
           <Image
-            src={"https://localhost:8888/" + params.row.profileImg}
+            src={Rabbit}
             width={55}
             height={55}
             layout="intrinsic"
@@ -36,7 +37,7 @@ export default function Influencers({ influencers, admin }) {
     },
     {
       field: "_id",
-      headerName: "Influencer Id",
+      headerName: "User Id",
       width: 120,
       headerAlign: "center",
     },
@@ -94,26 +95,26 @@ export default function Influencers({ influencers, admin }) {
         );
       },
     },
-    {
-      field: "delete",
-      headerName: "Delete",
-      sortable: false,
-      headerAlign: "center",
-      width: 120,
-      align: "center",
-      renderCell: (params) => {
-        return (
-          <Button
-            variant="contained"
-            startIcon={<DeleteIcon />}
-            color="error"
-            onClick={() => triggerDelete(params.row)}
-          >
-            DELETE
-          </Button>
-        );
-      },
-    },
+    // {
+    //   field: "delete",
+    //   headerName: "Delete",
+    //   sortable: false,
+    //   headerAlign: "center",
+    //   width: 120,
+    //   align: "center",
+    //   renderCell: (params) => {
+    //     return (
+    //       <Button
+    //         variant="contained"
+    //         startIcon={<DeleteIcon />}
+    //         color="error"
+    //         onClick={() => triggerDelete(params.row)}
+    //       >
+    //         DELETE
+    //       </Button>
+    //     );
+    //   },
+    // },
   ];
 
   function triggerDelete(admin) {
@@ -130,9 +131,9 @@ export default function Influencers({ influencers, admin }) {
     );
     let data = response.data;
     if (data.success === true) {
-      const infCopy = await [...inf];
-      const newCopy = await infCopy.filter((obj) => obj._id !== selected._id);
-      setInf(newCopy);
+      const usersCopy = await [...users];
+      const newCopy = await usersCopy.filter((obj) => obj._id !== selected._id);
+      setUsers(newCopy);
       setOpen(false);
     }
   }
@@ -141,21 +142,21 @@ export default function Influencers({ influencers, admin }) {
     console.log("Updating Status", user);
     const route = user.approved ? "revoke" : "approve";
     let response = await axios.post(
-      "https://localhost:8888/admins/" + route,
+      "https://localhost:8888/admins/user/" + route,
       { id: user._id },
       { withCredentials: true }
     );
     let data = response.data;
     if (data.success === true) {
-      const infCopy = await [...inf];
-      const newCopy = await infCopy.map((obj) => {
+      const usersCopy = await [...users];
+      const newCopy = await usersCopy.map((obj) => {
         if (obj._id === data.user._id) {
           return data.user;
         } else {
           return obj;
         }
       });
-      setInf(newCopy);
+      setUsers(newCopy);
     }
   }
 
@@ -170,7 +171,7 @@ export default function Influencers({ influencers, admin }) {
       <Box sx={{ width: "100%" }}>
         <div style={{ height: "100%", width: "100%" }}>
           <DataGrid
-            rows={inf}
+            rows={users}
             columns={columns}
             rowHeight={60}
             getRowId={(row) => row._id}
@@ -187,15 +188,16 @@ export default function Influencers({ influencers, admin }) {
     </Box>
   );
 }
+
 export async function getServerSideProps({ req }) {
-  let response = await axios.get("https://localhost:8888/admins/influencers", {
+  let response = await axios.get("https://localhost:8888/admins/users", {
     withCredentials: true,
     headers: {
       Cookie: req.headers.cookie,
     },
   });
   let data = response.data;
-  if (data.admin === null || data.influencers === null) {
+  if (data.admin === null || data.users === null) {
     return {
       redirect: {
         permanent: false,
@@ -205,6 +207,6 @@ export async function getServerSideProps({ req }) {
     };
   }
   return {
-    props: { admin: data.admin, influencers: data.influencers },
+    props: { admin: data.admin, users: data.users },
   };
 }

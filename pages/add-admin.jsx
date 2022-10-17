@@ -70,7 +70,7 @@ function SignUp({ admin }) {
       setLoading(true);
       console.log("admin form data", formData);
       let response = await axios.post(
-        "http://localhost:8888/admins/signup",
+        "https://localhost:8888/admins/signup",
         formData
       );
       let data = await response.data;
@@ -176,7 +176,7 @@ function SignUp({ admin }) {
 }
 
 export async function getServerSideProps({ req }) {
-  let response = await axios.get("http://localhost:8888/admins/check-auth", {
+  let response = await axios.get("https://localhost:8888/admins/check-auth", {
     withCredentials: true,
     headers: {
       Cookie: req.headers.cookie,

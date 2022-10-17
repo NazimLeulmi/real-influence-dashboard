@@ -47,10 +47,12 @@ const Header = styled("div")(({ theme }) => ({
 
 function SideNav({ openDrawer, setOpenDrawer, admin }) {
   const router = useRouter();
+  const path = router.pathname;
+  console.log(path);
 
   async function logout() {
     const response = await axios.post(
-      "http://localhost:8888/signout",
+      "https://localhost:8888/signout",
       {},
       {
         withCredentials: true,
@@ -81,7 +83,10 @@ function SideNav({ openDrawer, setOpenDrawer, admin }) {
         </Typography>
       </Header>
       <List>
-        <ListItem disablePadding>
+        <ListItem
+          disablePadding
+          sx={{ background: path === "/dashboard" ? "rgba(0,0,0,.075)" : null }}
+        >
           <ListItemButton>
             <ListItemIcon>
               <Dashboard fontSize="medium" />
@@ -91,7 +96,12 @@ function SideNav({ openDrawer, setOpenDrawer, admin }) {
             </Link>
           </ListItemButton>
         </ListItem>
-        <ListItem disablePadding>
+        <ListItem
+          disablePadding
+          sx={{
+            background: path === "/influencers" ? "rgba(0,0,0,.075)" : null,
+          }}
+        >
           <ListItemButton>
             <ListItemIcon>
               <Face2 fontSize="medium" />
@@ -101,7 +111,10 @@ function SideNav({ openDrawer, setOpenDrawer, admin }) {
             </Link>
           </ListItemButton>
         </ListItem>
-        {/* <ListItem disablePadding>
+        <ListItem
+          disablePadding
+          sx={{ background: path === "/users" ? "rgba(0,0,0,.075)" : null }}
+        >
           <ListItemButton>
             <ListItemIcon>
               <People fontSize="medium" />
@@ -110,10 +123,15 @@ function SideNav({ openDrawer, setOpenDrawer, admin }) {
               <ListItemText>Users</ListItemText>
             </Link>
           </ListItemButton>
-        </ListItem> */}
+        </ListItem>
         {admin.super && (
           <>
-            <ListItem disablePadding>
+            <ListItem
+              disablePadding
+              sx={{
+                background: path === "/admins" ? "rgba(0,0,0,.075)" : null,
+              }}
+            >
               <ListItemButton>
                 <ListItemIcon>
                   <AdminPanelSettings fontSize="medium" />
@@ -123,7 +141,12 @@ function SideNav({ openDrawer, setOpenDrawer, admin }) {
                 </Link>
               </ListItemButton>
             </ListItem>
-            <ListItem disablePadding>
+            <ListItem
+              disablePadding
+              sx={{
+                background: path === "/add-admin" ? "rgba(0,0,0,.075)" : null,
+              }}
+            >
               <ListItemButton>
                 <ListItemIcon>
                   <PersonAdd fontSize="medium" />
