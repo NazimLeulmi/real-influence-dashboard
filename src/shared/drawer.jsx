@@ -8,8 +8,6 @@ import {
   ListItemIcon,
   ListItemButton,
 } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
 import React from "react";
 import {
   Face2,
@@ -19,9 +17,9 @@ import {
   Logout,
   PersonAdd,
 } from "@mui/icons-material";
-import Logo from "../public/hacker.png";
+import Logo from "../assets/hacker.png";
 import axios from "axios";
-import { useRouter } from "next/router";
+import { useNavigate, NavLink } from "react-router-dom";
 
 const MyDrawer = styled(Drawer)(({ theme }) => ({
   minWidth: 300,
@@ -44,22 +42,26 @@ const Header = styled("div")(({ theme }) => ({
   margin: 20,
   alignItems: "center",
 }));
+const Link = styled(NavLink)(({ theme }) => ({
+  textDecoration: "none"
+}));
+
+
+
 
 function SideNav({ openDrawer, setOpenDrawer, admin }) {
-  const router = useRouter();
-  const path = router.pathname;
-  console.log(path);
+  const navigate = useNavigate();
 
   async function logout() {
     const response = await axios.post(
-      "https://localhost:8888/signout",
+      "https://realinfluence.io/signout",
       {},
       {
         withCredentials: true,
       }
     );
     let data = response.data;
-    if (data.success) router.push("/");
+    if (data.success) return navigate("/");
   }
   return (
     <MyDrawer
@@ -77,81 +79,70 @@ function SideNav({ openDrawer, setOpenDrawer, admin }) {
       }}
     >
       <Header>
-        <Image src={Logo} height={45} width={45} layout="intrinsic" />
+        <img src={Logo} height={45} width={45} />
         <Typography variant="h5" style={{ marginLeft: 10 }}>
           {admin.username}
         </Typography>
       </Header>
       <List>
-        <ListItem
-          disablePadding
-          sx={{ background: path === "/dashboard" ? "rgba(0,0,0,.075)" : null }}
-        >
+        <ListItem disablePadding>
           <ListItemButton>
             <ListItemIcon>
               <Dashboard fontSize="medium" />
             </ListItemIcon>
-            <Link href="/dashboard">
+            <Link to="/dashboard" style={({ isActive }) =>
+              isActive ? { color: "blue" } : { color: "black" }
+            }>
               <ListItemText>Dashboard</ListItemText>
             </Link>
           </ListItemButton>
         </ListItem>
-        <ListItem
-          disablePadding
-          sx={{
-            background: path === "/influencers" ? "rgba(0,0,0,.075)" : null,
-          }}
-        >
+        <ListItem disablePadding>
           <ListItemButton>
             <ListItemIcon>
               <Face2 fontSize="medium" />
             </ListItemIcon>
-            <Link href="/influencers">
+            <Link to="/influencers" style={({ isActive }) =>
+              isActive ? { color: "blue" } : { color: "black" }
+            }>
               <ListItemText>Influencers</ListItemText>
             </Link>
           </ListItemButton>
         </ListItem>
-        <ListItem
-          disablePadding
-          sx={{ background: path === "/users" ? "rgba(0,0,0,.075)" : null }}
-        >
+        <ListItem disablePadding>
           <ListItemButton>
             <ListItemIcon>
               <People fontSize="medium" />
             </ListItemIcon>
-            <Link href="/users">
+            <Link to="/users" style={({ isActive }) =>
+              isActive ? { color: "blue" } : { color: "black" }
+            }>
               <ListItemText>Users</ListItemText>
             </Link>
           </ListItemButton>
         </ListItem>
         {admin.super && (
           <>
-            <ListItem
-              disablePadding
-              sx={{
-                background: path === "/admins" ? "rgba(0,0,0,.075)" : null,
-              }}
-            >
+            <ListItem disablePadding>
               <ListItemButton>
                 <ListItemIcon>
                   <AdminPanelSettings fontSize="medium" />
                 </ListItemIcon>
-                <Link href="/admins">
+                <Link to="/admins" style={({ isActive }) =>
+                  isActive ? { color: "blue" } : { color: "black" }
+                } >
                   <ListItemText>Admins</ListItemText>
                 </Link>
               </ListItemButton>
             </ListItem>
-            <ListItem
-              disablePadding
-              sx={{
-                background: path === "/add-admin" ? "rgba(0,0,0,.075)" : null,
-              }}
-            >
+            <ListItem disablePadding>
               <ListItemButton>
                 <ListItemIcon>
                   <PersonAdd fontSize="medium" />
                 </ListItemIcon>
-                <Link href="/add-admin">
+                <Link to="/admin-form" style={({ isActive }) =>
+                  isActive ? { color: "blue" } : { color: "black" }
+                }>
                   <ListItemText>Add Admin</ListItemText>
                 </Link>
               </ListItemButton>

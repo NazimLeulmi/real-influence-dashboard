@@ -1,17 +1,20 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
-import AuthInput from "../auth/input";
-import AuthBtn from "../auth/button";
-import Image from "next/image";
-import { useRouter } from "next/router";
+import AuthInput from "./auth/input";
+import AuthBtn from "./auth/button";
 import axios from "axios";
-import validation from "../auth/validation";
-import FormHeader from "../auth/header";
-import { Logo, Form, Side } from ".";
+import validation from "./auth/validation";
+import FormHeader from "./auth/header";
+import { Logo, Form } from "./signin";
 import { styled, Box } from "@mui/material";
-import Drawer from "../shared/drawer";
-import Model from "../public/model.png";
-import Admin from "../public/admin.png";
+import Drawer from "./shared/drawer";
+import Model from "./assets/model.png";
+import Admin from "./assets/admin.png";
+import { useNavigate } from "react-router-dom";
+import fetchAdmin from "./requests/fetchAdmin";
+import { useQuery } from "@tanstack/react-query";
+import { LoadingContainer } from "./signin";
+import LoadingImage from "./assets/loading.svg";
 
 const Container = styled("main")(({ theme }) => ({
   width: "100vw",
@@ -35,7 +38,7 @@ const ImgContainer = styled(Box)(({ theme }) => ({
   borderRadius: 20,
 }));
 
-function SignUp({ admin }) {
+function AdminForm() {
   const {
     control,
     watch,
@@ -54,7 +57,9 @@ function SignUp({ admin }) {
   password.current = watch("password", "");
   const [loading, setLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
+
+  const { data: admin, isLoading: Loading } = useQuery(["admin"], fetchAdmin);
 
   function togglePasswordVisiblity() {
     console.log("Toggled Password Visiblity");
@@ -65,16 +70,26 @@ function SignUp({ admin }) {
     event.preventDefault();
   }
 
+  if (Loading) {
+    return (
+      <LoadingContainer>
+        <img src={LoadingImage} />
+      </LoadingContainer>
+    )
+  }
+
+  if (!admin) return navigate("/");
+
   async function onSubmit(formData) {
     try {
       setLoading(true);
       console.log("admin form data", formData);
       let response = await axios.post(
-        "https://localhost:8888/admins/signup",
+        "https://realinfluence.io/admins/signup",
         formData
       );
       let data = await response.data;
-      if (data.isValid === true) router.push("/admins");
+      if (data.isValid === true) navigate("/admins");
       for (const errorName in data.errors) {
         console.log(`${errorName}: ${data.errors[errorName]}`);
         if (data.errors[errorName]) {
@@ -94,9 +109,7 @@ function SignUp({ admin }) {
       <Drawer admin={admin} />
       <Content>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <Logo>
-            <Image src={Admin} layout="fill" />
-          </Logo>
+          <Logo src={Admin} />
           <FormHeader href="/signup" />
           <Controller
             rules={validation.email}
@@ -168,30 +181,11 @@ function SignUp({ admin }) {
           <AuthBtn disabled={loading}>ADD ADMIN</AuthBtn>
         </Form>
         <ImgContainer boxShadow={2}>
-          <Image src={Model} layout="fill" />
+          <img src={Model} style={{ width: "100%", height: "100%" }} />
         </ImgContainer>
       </Content>
     </Container>
   );
 }
 
-export async function getServerSideProps({ req }) {
-  let response = await axios.get("https://localhost:8888/admins/check-auth", {
-    withCredentials: true,
-    headers: {
-      Cookie: req.headers.cookie,
-    },
-  });
-  let data = response.data;
-  if (data.admin === null || data.admin.super === false) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/",
-      },
-    };
-  }
-  return { props: { admin: data.admin } };
-}
-
-export default SignUp;
+export default AdminForm;

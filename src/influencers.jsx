@@ -1,20 +1,42 @@
 import * as React from "react";
-import Drawer from "../shared/drawer";
-import axios from "axios";
+import Drawer from "./shared/drawer";
 import { Button, Chip, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import InfoIcon from "@mui/icons-material/Info";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Image from "next/image";
-import AlertDialog from "../shared/alert";
+import AlertDialog from "./shared/alert";
+import LoadingImage from "./assets/loading.svg";
+import { LoadingContainer } from "./signin";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import fetchInfluencers from "./requests/fetchInfluencers";
+import fetchAdmin from "./requests/fetchAdmin";
+import toggleStatus from "./requests/toggleStatus";
+import deleteInfluencer from "./requests/deleteInfluencer";
+import { useNavigate } from "react-router-dom";
 
-export default function Influencers({ influencers, admin }) {
+export default function Influencers() {
   const [openDrawer, setOpenDrawer] = React.useState(false);
-  const [inf, setInf] = React.useState(influencers);
   const [open, setOpen] = React.useState(false); // alert dialog state
   const [selected, setSelected] = React.useState(null);
+  const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
+  const { data: influencers, isLoading } = useQuery(["influencers"], fetchInfluencers);
+  const { data: admin, isLoading: Loading } = useQuery(["admin"], fetchAdmin);
+  const mutation = useMutation(toggleStatus, {
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries(['influencers'])
+    },
+  })
+  const deleteMutation = useMutation(deleteInfluencer, {
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries(['influencers'])
+    },
+  })
 
   const columns = [
     {
@@ -24,11 +46,10 @@ export default function Influencers({ influencers, admin }) {
       width: 65,
       renderCell: (params) => {
         return (
-          <Image
-            src={"https://localhost:8888/" + params.row.profileImg}
+          <img
+            src={"https://realinfluence.io/" + params.row.profileImg}
             width={55}
             height={55}
-            layout="intrinsic"
             style={{ borderRadius: 30 }}
           />
         );
@@ -121,47 +142,30 @@ export default function Influencers({ influencers, admin }) {
     setOpen(true);
   }
 
-  async function deleteInfluencer() {
-    console.log("Deleting influencer");
-    let response = await axios.post(
-      "https://localhost:8888/influencers/delete",
-      { id: selected._id },
-      { withCredentials: true }
-    );
-    let data = response.data;
-    if (data.success === true) {
-      const infCopy = await [...inf];
-      const newCopy = await infCopy.filter((obj) => obj._id !== selected._id);
-      setInf(newCopy);
-      setOpen(false);
-    }
+  async function removeInfluencer() {
+    console.log(selected);
+    deleteMutation.mutate(selected._id);
+    setOpen(false);
   }
 
   async function updateStatus(user) {
-    console.log("Updating Status", user);
-    const route = user.approved ? "revoke" : "approve";
-    let response = await axios.post(
-      "https://localhost:8888/admins/" + route,
-      { id: user._id },
-      { withCredentials: true }
-    );
-    let data = response.data;
-    if (data.success === true) {
-      const infCopy = await [...inf];
-      const newCopy = await infCopy.map((obj) => {
-        if (obj._id === data.user._id) {
-          return data.user;
-        } else {
-          return obj;
-        }
-      });
-      setInf(newCopy);
-    }
+    mutation.mutate(user._id)
   }
+
+
+  if (isLoading || Loading) {
+    return (
+      <LoadingContainer>
+        <img src={LoadingImage} />
+      </LoadingContainer>
+    )
+  }
+
+  if (!admin || !Influencers) return navigate("/");
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AlertDialog open={open} setOpen={setOpen} deleteFun={deleteInfluencer} />
+      <AlertDialog open={open} setOpen={setOpen} deleteFun={removeInfluencer} />
       <Drawer
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
@@ -170,7 +174,7 @@ export default function Influencers({ influencers, admin }) {
       <Box sx={{ width: "100%" }}>
         <div style={{ height: "100%", width: "100%" }}>
           <DataGrid
-            rows={inf}
+            rows={influencers}
             columns={columns}
             rowHeight={60}
             getRowId={(row) => row._id}
@@ -186,25 +190,4 @@ export default function Influencers({ influencers, admin }) {
       </Box>
     </Box>
   );
-}
-export async function getServerSideProps({ req }) {
-  let response = await axios.get("https://localhost:8888/admins/influencers", {
-    withCredentials: true,
-    headers: {
-      Cookie: req.headers.cookie,
-    },
-  });
-  let data = response.data;
-  if (data.admin === null || data.influencers === null) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/",
-      },
-      props: {},
-    };
-  }
-  return {
-    props: { admin: data.admin, influencers: data.influencers },
-  };
 }

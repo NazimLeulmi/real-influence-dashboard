@@ -1,20 +1,36 @@
 import * as React from "react";
-import Drawer from "../shared/drawer";
-import axios from "axios";
-import { Button, Chip, Box, calc } from "@mui/material";
-import { DataGrid, GridCell } from "@mui/x-data-grid";
+import Drawer from "./shared/drawer";
+import { Button, Chip, Box } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { AdminPanelSettings, Person2 } from "@mui/icons-material";
-import AlertDialog from "../shared/alert";
-import Rookie from "../public/rookie.png";
-import Super from "../public/super.png";
-import Image from "next/image";
+import AlertDialog from "./shared/alert";
+import Rookie from "./assets/rookie.png";
+import Super from "./assets/super.png";
+import LoadingImage from "./assets/loading.svg";
+import { LoadingContainer } from "./signin";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import fetchAdmin from "./requests/fetchAdmin";
+import fetchAdmins from "./requests/fetchAdmins";
+import deleteAdmin from "./requests/deleteAdmin";
+import { useNavigate } from "react-router-dom";
 
-export default function Admins({ admins, admin }) {
+export default function Admins() {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [open, setOpen] = React.useState(false); // alert dialog state
-  const [adm, setAdmins] = React.useState(admins);
   const [selected, setSelected] = React.useState(null);
+  const navigate = useNavigate();
+
+  // React Query //
+  const queryClient = useQueryClient();
+  const { data: admins, isLoading } = useQuery(["admins"], fetchAdmins);
+  const { data: admin, isLoading: Loading } = useQuery(["admin"], fetchAdmin);
+  const deleteMutation = useMutation(deleteAdmin, {
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries(['admins'])
+    },
+  })
   const columns = [
     {
       field: "image",
@@ -23,11 +39,10 @@ export default function Admins({ admins, admin }) {
       width: 65,
       renderCell: (params) => {
         return (
-          <Image
+          <img
             src={params.row.super ? Super : Rookie}
             width={50}
             height={50}
-            layout="intrinsic"
             style={{ borderRadius: 25 }}
           />
         );
@@ -97,26 +112,26 @@ export default function Admins({ admins, admin }) {
     setOpen(true);
   }
 
-  async function deleteAdmin() {
-    let response = await axios.post(
-      "https://localhost:8888/admins/delete",
-      { id: selected._id },
-      { withCredentials: true }
-    );
-    let data = response.data;
-    if (data.success === true) {
-      const adminsCopy = await [...adm];
-      const newCopy = await adminsCopy.filter(
-        (obj) => obj._id !== selected._id
-      );
-      setAdmins(newCopy);
-      setOpen(false);
-    }
+  async function removeAdmin() {
+    console.log(selected);
+    deleteMutation.mutate(selected._id);
+    setOpen(false);
   }
+
+  if (isLoading || Loading) {
+    return (
+      <LoadingContainer>
+        <img src={LoadingImage} />
+      </LoadingContainer>
+    )
+  }
+
+  console.log(admin, admins)
+  if (!admin || !admins) return navigate("/");
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AlertDialog open={open} setOpen={setOpen} deleteFun={deleteAdmin} />
+      <AlertDialog open={open} setOpen={setOpen} deleteFun={removeAdmin} />
       <Drawer
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
@@ -125,7 +140,7 @@ export default function Admins({ admins, admin }) {
       <Box sx={{ width: "100%" }}>
         <div style={{ height: "100%", width: "100%" }}>
           <DataGrid
-            rows={adm}
+            rows={admins}
             columns={columns}
             rowHeight={60}
             getRowId={(row) => row._id}
@@ -141,27 +156,4 @@ export default function Admins({ admins, admin }) {
       </Box>
     </Box>
   );
-}
-
-export async function getServerSideProps({ req }) {
-  let response = await axios.get("https://localhost:8888/admins", {
-    withCredentials: true,
-    headers: {
-      Cookie: req.headers.cookie,
-    },
-  });
-  let data = response.data;
-  console.log(data.admin, "admins page");
-  if (data.admin === null || data.admins === null) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/",
-      },
-      props: {},
-    };
-  }
-  return {
-    props: { admin: data.admin, admins: data.admins },
-  };
 }

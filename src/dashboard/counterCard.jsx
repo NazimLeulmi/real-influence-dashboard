@@ -1,6 +1,5 @@
-import { Typography, styled, IconButton, Paper, alpha } from "@mui/material";
+import { Typography, styled, Paper, alpha } from "@mui/material";
 import React from "react";
-// import MenuIcon from "@mui/icons-material/Menu";
 
 const Container = styled(Paper)(({ theme, color }) => ({
   background: alpha(color, 0.75),

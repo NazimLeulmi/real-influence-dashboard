@@ -1,18 +1,22 @@
 import { styled } from "@mui/material";
-import Drawer from "../shared/drawer";
+import Drawer from "./shared/drawer";
 import React from "react";
 import Grid from "@mui/material/Unstable_Grid2";
-import CounterCard from "../dashboard/counterCard";
+import CounterCard from "./dashboard/counterCard";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PeopleIcon from "@mui/icons-material/People";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Face2Icon from "@mui/icons-material/Face2";
-import BarChart from "../charts/BarChart";
-import LineChart from "../charts/LineChart";
-import PieChart from "../charts/PieChart";
-import UploadsData from "../data/uploads";
+import BarChart from "./charts/barChart";
+import LineChart from "./charts/lineChart";
+import PieChart from "./charts/pieChart";
+import UploadsData from "./data/uploads";
 import { Box } from "@mui/material";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { LoadingContainer } from "./signin";
+import LoadingImage from "./assets/loading.svg";
+import { useQuery } from "@tanstack/react-query";
+import fetchAdmin from "./requests/fetchAdmin";
 
 const Container = styled("main")(({ theme }) => ({
   width: "100vw",
@@ -31,7 +35,10 @@ const Content = styled(Box)(({ theme }) => ({
   overflow: "scroll",
 }));
 
-function Dashboard({ admin }) {
+function Dashboard() {
+  const navigate = useNavigate();
+  const { data: admin, isLoading } = useQuery(["admin"], fetchAdmin);
+
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [data, setData] = React.useState({
     labels: UploadsData.map((data) => data.month),
@@ -51,6 +58,18 @@ function Dashboard({ admin }) {
       },
     ],
   });
+
+
+  if (isLoading) {
+    return (
+      <LoadingContainer>
+        <img src={LoadingImage} />
+      </LoadingContainer>
+    )
+  }
+
+  if (!admin) return navigate("/");
+
   return (
     <Container>
       <Drawer
@@ -111,26 +130,6 @@ function Dashboard({ admin }) {
       </Content>
     </Container>
   );
-}
-
-export async function getServerSideProps({ req }) {
-  let response = await axios.get("https://localhost:8888/admins/check-auth", {
-    withCredentials: true,
-    headers: {
-      Cookie: req.headers.cookie,
-    },
-  });
-  let data = response.data;
-  console.log(data.admin);
-  if (data.admin === null) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/",
-      },
-    };
-  }
-  return { props: { admin: data.admin } };
 }
 
 export default Dashboard;

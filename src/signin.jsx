@@ -1,22 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import AuthInput from "../auth/input";
-import AuthBtn from "../auth/button";
+import AuthInput from "./auth/input";
+import AuthBtn from "./auth/button";
 import { styled, Checkbox, FormControlLabel, Typography } from "@mui/material";
-import Image from "next/image";
-import LogoImg from "../public/hacker.png";
-import { useRouter } from "next/router";
+import LogoImg from "./assets/hacker.png";
+import Model from "./assets/model.png";
 import axios from "axios";
-import validation from "../auth/validation";
-import Wrapper from "../auth/wrapper";
-import FormHeader from "../auth/header";
-import Link from "next/link";
-import FormLink from "../auth/link";
-import Model from "../public/model.png";
+import validation from "./auth/validation";
+import Wrapper from "./auth/wrapper";
+import FormHeader from "./auth/header";
+import { useNavigate, Link } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "./context/authContext";
+import { useQuery } from "@tanstack/react-query";
+import fetchAdmin from "./requests/fetchAdmin";
+import LoadingImage from "./assets/loading.svg";
 
-export const Logo = styled("div")(() => ({
-  width: 80,
-  height: 80,
+export const Logo = styled("img")(() => ({
+  width: 100,
+  height: 100,
   position: "relative",
   marginBottom: 25,
 }));
@@ -57,7 +59,19 @@ export const Side = styled("div")(({ theme }) => ({
   position: "relative",
   backgroundColor: theme.palette.primary.main,
 }));
-
+export const SideImage = styled("img")(({ theme }) => ({
+  height: "100%",
+  width: "100%",
+  borderRadius: 20,
+}));
+export const LoadingContainer = styled("div")(({ theme }) => ({
+  height: "100vh",
+  width: "100vw",
+  background: "whitesmoke",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center"
+}));
 function SignIn() {
   const {
     control,
@@ -71,9 +85,11 @@ function SignIn() {
       checkbox: false,
     },
   });
+  const { isLoading, data } = useQuery(["admin"], fetchAdmin);
+
   const [loading, setLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   function togglePasswordVisiblity() {
     console.log("Toggled Password Visiblity");
@@ -84,34 +100,46 @@ function SignIn() {
     event.preventDefault();
   }
 
+
+
   async function onSubmit(formData) {
     try {
       console.log(formData);
       setLoading(true);
       let response = await axios.post(
-        "https://localhost:8888/admins/signin",
-        formData,
-        { withCredentials: true }
+        "https://realinfluence.io/admins/signin",
+        formData
       );
       let data = await response.data;
       console.log(data);
-      if (data.success === true) router.push("/dashboard");
+      if (data.success === true) {
+        console.log("Signed in");
+        return navigate("/dashboard");
+      }
       setError("password", {
         type: "server",
         message: data.error,
       });
-
-      // setLoading(false);
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }
   }
+
+  if (isLoading) {
+    return (
+      <LoadingContainer>
+        <img src={LoadingImage} />
+      </LoadingContainer>
+    )
+  }
+
+  if (data) return navigate("/dashboard");
+
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <Logo>
-          <Image src={LogoImg} layout="fill" />
-        </Logo>
+        <Logo src={LogoImg} />
         <FormHeader href="/" />
         {/* Email RHF input */}
         <Controller
@@ -164,29 +192,10 @@ function SignIn() {
         <AuthBtn disabled={loading}>LOGIN</AuthBtn>
       </Form>
       <Side>
-        <Image src={Model} layout="fill" style={{ borderRadius: 20 }} />
+        <SideImage src={Model} />
       </Side>
     </Wrapper>
   );
-}
-export async function getServerSideProps({ req }) {
-  let response = await axios.get("https://localhost:8888/admins/check-auth", {
-    withCredentials: true,
-    headers: {
-      Cookie: req.headers.cookie ? req.headers.cookie : null,
-    },
-  });
-  let data = response.data;
-  console.log(data);
-  if (data.admin) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/dashboard",
-      },
-    };
-  }
-  return { props: {} };
 }
 
 export default SignIn;
