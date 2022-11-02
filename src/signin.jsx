@@ -1,20 +1,18 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import AuthInput from "./auth/input";
 import AuthBtn from "./auth/button";
 import { styled, Checkbox, FormControlLabel, Typography } from "@mui/material";
-import LogoImg from "./assets/hacker.png";
 import Model from "./assets/model.png";
 import axios from "axios";
 import validation from "./auth/validation";
 import Wrapper from "./auth/wrapper";
 import FormHeader from "./auth/header";
 import { useNavigate, Link } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "./context/authContext";
 import { useQuery } from "@tanstack/react-query";
 import fetchAdmin from "./requests/fetchAdmin";
 import LoadingImage from "./assets/loading.svg";
+import Bear from "./assets/bear.png";
 
 export const Logo = styled("img")(() => ({
   width: 100,
@@ -70,7 +68,7 @@ export const LoadingContainer = styled("div")(({ theme }) => ({
   background: "whitesmoke",
   display: "flex",
   alignItems: "center",
-  justifyContent: "center"
+  justifyContent: "center",
 }));
 function SignIn() {
   const {
@@ -99,8 +97,6 @@ function SignIn() {
   function handleMouseDownPassword(event) {
     event.preventDefault();
   }
-
-
 
   async function onSubmit(formData) {
     try {
@@ -131,7 +127,7 @@ function SignIn() {
       <LoadingContainer>
         <img src={LoadingImage} />
       </LoadingContainer>
-    )
+    );
   }
 
   if (data) return navigate("/dashboard");
@@ -139,7 +135,7 @@ function SignIn() {
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <Logo src={LogoImg} />
+        <Logo src={Bear} />
         <FormHeader href="/" />
         {/* Email RHF input */}
         <Controller

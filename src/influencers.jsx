@@ -19,24 +19,28 @@ import { useNavigate } from "react-router-dom";
 export default function Influencers() {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [open, setOpen] = React.useState(false); // alert dialog state
+  const [revoke, setRevoke] = React.useState(false); // alert dialog state
   const [selected, setSelected] = React.useState(null);
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
-  const { data: influencers, isLoading } = useQuery(["influencers"], fetchInfluencers);
+  const { data: influencers, isLoading } = useQuery(
+    ["influencers"],
+    fetchInfluencers
+  );
   const { data: admin, isLoading: Loading } = useQuery(["admin"], fetchAdmin);
   const mutation = useMutation(toggleStatus, {
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries(['influencers'])
+      queryClient.invalidateQueries(["influencers"]);
     },
-  })
+  });
   const deleteMutation = useMutation(deleteInfluencer, {
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries(['influencers'])
+      queryClient.invalidateQueries(["influencers"]);
     },
-  })
+  });
 
   const columns = [
     {
@@ -108,7 +112,7 @@ export default function Influencers() {
             sx={{
               background: params.row.approved ? "orange" : "primary",
             }}
-            onClick={() => updateStatus(params.row)}
+            onClick={() => triggerStatusAlert(params.row)}
           >
             {params.row.approved ? "REVOKE" : "APPROVE"}
           </Button>
@@ -128,7 +132,7 @@ export default function Influencers() {
             variant="contained"
             startIcon={<DeleteIcon />}
             color="error"
-            onClick={() => triggerDelete(params.row)}
+            onClick={() => triggerDeleteAlert(params.row)}
           >
             DELETE
           </Button>
@@ -137,8 +141,14 @@ export default function Influencers() {
     },
   ];
 
-  function triggerDelete(admin) {
-    setSelected(admin);
+  function triggerStatusAlert(user) {
+    setRevoke(true);
+    setSelected(user);
+    setOpen(true);
+  }
+  function triggerDeleteAlert(user) {
+    setRevoke(false);
+    setSelected(user);
     setOpen(true);
   }
 
@@ -148,24 +158,28 @@ export default function Influencers() {
     setOpen(false);
   }
 
-  async function updateStatus(user) {
-    mutation.mutate(user._id)
+  async function updateStatus() {
+    mutation.mutate(selected._id);
+    setOpen(false);
   }
-
 
   if (isLoading || Loading) {
     return (
       <LoadingContainer>
         <img src={LoadingImage} />
       </LoadingContainer>
-    )
+    );
   }
 
   if (!admin || !Influencers) return navigate("/");
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AlertDialog open={open} setOpen={setOpen} deleteFun={removeInfluencer} />
+      <AlertDialog
+        open={open}
+        setOpen={setOpen}
+        deleteFun={revoke ? updateStatus : removeInfluencer}
+      />
       <Drawer
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}

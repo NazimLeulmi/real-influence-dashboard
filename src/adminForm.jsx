@@ -9,12 +9,12 @@ import { Logo, Form } from "./signin";
 import { styled, Box } from "@mui/material";
 import Drawer from "./shared/drawer";
 import Model from "./assets/model.png";
-import Admin from "./assets/admin.png";
 import { useNavigate } from "react-router-dom";
 import fetchAdmin from "./requests/fetchAdmin";
 import { useQuery } from "@tanstack/react-query";
 import { LoadingContainer } from "./signin";
 import LoadingImage from "./assets/loading.svg";
+import Panda from "./assets/panda.png";
 
 const Container = styled("main")(({ theme }) => ({
   width: "100vw",
@@ -75,7 +75,7 @@ function AdminForm() {
       <LoadingContainer>
         <img src={LoadingImage} />
       </LoadingContainer>
-    )
+    );
   }
 
   if (!admin) return navigate("/");
@@ -109,7 +109,7 @@ function AdminForm() {
       <Drawer admin={admin} />
       <Content>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <Logo src={Admin} />
+          <Logo src={Panda} />
           <FormHeader href="/signup" />
           <Controller
             rules={validation.email}

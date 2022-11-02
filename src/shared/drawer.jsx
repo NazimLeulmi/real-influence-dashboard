@@ -17,9 +17,10 @@ import {
   Logout,
   PersonAdd,
 } from "@mui/icons-material";
-import Logo from "../assets/hacker.png";
 import axios from "axios";
 import { useNavigate, NavLink } from "react-router-dom";
+import Bear from "../assets/bear.png";
+import Panda from "../assets/panda.png";
 
 const MyDrawer = styled(Drawer)(({ theme }) => ({
   minWidth: 300,
@@ -33,21 +34,18 @@ const MyDrawer = styled(Drawer)(({ theme }) => ({
   },
 }));
 const Header = styled("div")(({ theme }) => ({
-  width: 250,
-  background: "rgba(0,0,0,.1)",
+  width: "100%",
+  background: theme.palette.primary.light,
   display: "flex",
-  padding: 20,
-  borderRadius: 20,
   alignSelf: "center",
-  margin: 20,
+  padding: "50px 15px",
   alignItems: "center",
+  marginBottom: 10,
+  color: "white",
 }));
 const Link = styled(NavLink)(({ theme }) => ({
-  textDecoration: "none"
+  textDecoration: "none",
 }));
-
-
-
 
 function SideNav({ openDrawer, setOpenDrawer, admin }) {
   const navigate = useNavigate();
@@ -79,74 +77,94 @@ function SideNav({ openDrawer, setOpenDrawer, admin }) {
       }}
     >
       <Header>
-        <img src={Logo} height={45} width={45} />
+        <img src={admin.super ? Bear : Panda} height={60} width={60} />
         <Typography variant="h5" style={{ marginLeft: 10 }}>
           {admin.username}
         </Typography>
       </Header>
       <List>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <Dashboard fontSize="medium" />
-            </ListItemIcon>
-            <Link to="/dashboard" style={({ isActive }) =>
-              isActive ? { color: "blue" } : { color: "black" }
-            }>
+        <Link
+          to="/dashboard"
+          style={({ isActive }) =>
+            isActive ? { color: "blue" } : { color: "black" }
+          }
+        >
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <Dashboard fontSize="medium" />
+              </ListItemIcon>
+
               <ListItemText>Dashboard</ListItemText>
-            </Link>
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <Face2 fontSize="medium" />
-            </ListItemIcon>
-            <Link to="/influencers" style={({ isActive }) =>
-              isActive ? { color: "blue" } : { color: "black" }
-            }>
+            </ListItemButton>
+          </ListItem>
+        </Link>
+        <Link
+          to="/influencers"
+          style={({ isActive }) =>
+            isActive ? { color: "blue" } : { color: "black" }
+          }
+        >
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <Face2 fontSize="medium" />
+              </ListItemIcon>
+
               <ListItemText>Influencers</ListItemText>
-            </Link>
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <People fontSize="medium" />
-            </ListItemIcon>
-            <Link to="/users" style={({ isActive }) =>
-              isActive ? { color: "blue" } : { color: "black" }
-            }>
+            </ListItemButton>
+          </ListItem>
+        </Link>
+        <Link
+          to="/users"
+          style={({ isActive }) =>
+            isActive ? { color: "blue" } : { color: "black" }
+          }
+        >
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <People fontSize="medium" />
+              </ListItemIcon>
+
               <ListItemText>Users</ListItemText>
-            </Link>
-          </ListItemButton>
-        </ListItem>
+            </ListItemButton>
+          </ListItem>
+        </Link>
         {admin.super && (
           <>
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  <AdminPanelSettings fontSize="medium" />
-                </ListItemIcon>
-                <Link to="/admins" style={({ isActive }) =>
-                  isActive ? { color: "blue" } : { color: "black" }
-                } >
+            <Link
+              to="/admins"
+              style={({ isActive }) =>
+                isActive ? { color: "blue" } : { color: "black" }
+              }
+            >
+              <ListItem disablePadding>
+                <ListItemButton>
+                  <ListItemIcon>
+                    <AdminPanelSettings fontSize="medium" />
+                  </ListItemIcon>
+
                   <ListItemText>Admins</ListItemText>
-                </Link>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  <PersonAdd fontSize="medium" />
-                </ListItemIcon>
-                <Link to="/admin-form" style={({ isActive }) =>
-                  isActive ? { color: "blue" } : { color: "black" }
-                }>
+                </ListItemButton>
+              </ListItem>
+            </Link>
+            <Link
+              to="/admin-form"
+              style={({ isActive }) =>
+                isActive ? { color: "blue" } : { color: "black" }
+              }
+            >
+              <ListItem disablePadding>
+                <ListItemButton>
+                  <ListItemIcon>
+                    <PersonAdd fontSize="medium" />
+                  </ListItemIcon>
+
                   <ListItemText>Add Admin</ListItemText>
-                </Link>
-              </ListItemButton>
-            </ListItem>
+                </ListItemButton>
+              </ListItem>
+            </Link>
           </>
         )}
       </List>

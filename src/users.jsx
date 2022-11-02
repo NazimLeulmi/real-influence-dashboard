@@ -21,6 +21,7 @@ export default function Users() {
   const navigate = useNavigate();
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [open, setOpen] = React.useState(false); // alert dialog state
+  const [revoke, setRevoke] = React.useState(false); // alert dialog state
   // React Query //
   const [selected, setSelected] = React.useState(null);
   const queryClient = useQueryClient();
@@ -29,15 +30,15 @@ export default function Users() {
   const mutation = useMutation(toggleUserStatus, {
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries(['users'])
+      queryClient.invalidateQueries(["users"]);
     },
-  })
+  });
   const deleteMutation = useMutation(deleteUser, {
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries(['users'])
+      queryClient.invalidateQueries(["users"]);
     },
-  })
+  });
 
   const columns = [
     {
@@ -110,7 +111,7 @@ export default function Users() {
             sx={{
               background: params.row.approved ? "orange" : "primary",
             }}
-            onClick={() => updateStatus(params.row)}
+            onClick={() => triggerStatusAlert(params.row)}
           >
             {params.row.approved ? "REVOKE" : "APPROVE"}
           </Button>
@@ -130,7 +131,7 @@ export default function Users() {
             variant="contained"
             startIcon={<DeleteIcon />}
             color="error"
-            onClick={() => triggerDelete(params.row)}
+            onClick={() => triggerDeleteAlert(params.row)}
           >
             DELETE
           </Button>
@@ -139,20 +140,24 @@ export default function Users() {
     },
   ];
 
-  function triggerDelete(user) {
+  function triggerStatusAlert(user) {
+    setRevoke(true);
+    setSelected(user);
+    setOpen(true);
+  }
+  function triggerDeleteAlert(user) {
+    setRevoke(false);
     setSelected(user);
     setOpen(true);
   }
 
-
   async function removeUser() {
-    console.log(selected);
     deleteMutation.mutate(selected._id);
     setOpen(false);
   }
-
-  async function updateStatus(user) {
-    mutation.mutate(user._id);
+  async function updateStatus() {
+    mutation.mutate(selected._id);
+    setOpen(false);
   }
 
   if (isLoading || Loading) {
@@ -160,14 +165,18 @@ export default function Users() {
       <LoadingContainer>
         <img src={LoadingImage} />
       </LoadingContainer>
-    )
+    );
   }
 
   if (!admin || !users) return navigate("/");
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AlertDialog open={open} setOpen={setOpen} deleteFun={removeUser} />
+      <AlertDialog
+        open={open}
+        setOpen={setOpen}
+        deleteFun={revoke ? updateStatus : removeUser}
+      />
       <Drawer
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}

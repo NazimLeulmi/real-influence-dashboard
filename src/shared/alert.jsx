@@ -14,9 +14,7 @@ function AlertDialog({ open, setOpen, deleteFun }) {
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">
-        Do you want to delete this admin account ?
-      </DialogTitle>
+      <DialogTitle id="alert-dialog-title">Confirmation Alert</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           This is an alert dialog to avoid accidental actions

@@ -17,6 +17,7 @@ import { LoadingContainer } from "./signin";
 import LoadingImage from "./assets/loading.svg";
 import { useQuery } from "@tanstack/react-query";
 import fetchAdmin from "./requests/fetchAdmin";
+import fetchStats from "./requests/fetchStats";
 
 const Container = styled("main")(({ theme }) => ({
   width: "100vw",
@@ -38,6 +39,8 @@ const Content = styled(Box)(({ theme }) => ({
 function Dashboard() {
   const navigate = useNavigate();
   const { data: admin, isLoading } = useQuery(["admin"], fetchAdmin);
+  const { data: stats, isLoading: Loading } = useQuery(["stats"], fetchStats);
+  console.log(stats, stats);
 
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [data, setData] = React.useState({
@@ -59,13 +62,12 @@ function Dashboard() {
     ],
   });
 
-
-  if (isLoading) {
+  if (isLoading || Loading) {
     return (
       <LoadingContainer>
         <img src={LoadingImage} />
       </LoadingContainer>
-    )
+    );
   }
 
   if (!admin) return navigate("/");
@@ -83,7 +85,7 @@ function Dashboard() {
             <CounterCard
               color="#D1E9FC"
               icon={<FavoriteIcon fontSize="medium" />}
-              counter="1923"
+              counter={stats.likes}
               text="Total Likes"
             />
           </Grid>
@@ -91,7 +93,7 @@ function Dashboard() {
             <CounterCard
               color="#DDF2FF"
               icon={<CloudUploadIcon fontSize="medium" />}
-              counter="392"
+              counter={stats.uploads}
               text="Total Uploads"
             />
           </Grid>
@@ -99,7 +101,7 @@ function Dashboard() {
             <CounterCard
               color="#FFF7CD"
               icon={<Face2Icon fontSize="medium" />}
-              counter="103"
+              counter={stats.influencers}
               text="Total Influencers"
             />
           </Grid>
@@ -107,7 +109,7 @@ function Dashboard() {
             <CounterCard
               color="#FFE7D9"
               icon={<PeopleIcon fontSize="medium" />}
-              counter="1992"
+              counter={stats.users}
               text="Total Users"
             />
           </Grid>

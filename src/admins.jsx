@@ -5,8 +5,6 @@ import { DataGrid } from "@mui/x-data-grid";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { AdminPanelSettings, Person2 } from "@mui/icons-material";
 import AlertDialog from "./shared/alert";
-import Rookie from "./assets/rookie.png";
-import Super from "./assets/super.png";
 import LoadingImage from "./assets/loading.svg";
 import { LoadingContainer } from "./signin";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -14,6 +12,8 @@ import fetchAdmin from "./requests/fetchAdmin";
 import fetchAdmins from "./requests/fetchAdmins";
 import deleteAdmin from "./requests/deleteAdmin";
 import { useNavigate } from "react-router-dom";
+import Bear from "./assets/bear.png";
+import Panda from "./assets/panda.png";
 
 export default function Admins() {
   const [openDrawer, setOpenDrawer] = React.useState(false);
@@ -28,9 +28,9 @@ export default function Admins() {
   const deleteMutation = useMutation(deleteAdmin, {
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries(['admins'])
+      queryClient.invalidateQueries(["admins"]);
     },
-  })
+  });
   const columns = [
     {
       field: "image",
@@ -40,7 +40,7 @@ export default function Admins() {
       renderCell: (params) => {
         return (
           <img
-            src={params.row.super ? Super : Rookie}
+            src={params.row.super ? Bear : Panda}
             width={50}
             height={50}
             style={{ borderRadius: 25 }}
@@ -123,10 +123,10 @@ export default function Admins() {
       <LoadingContainer>
         <img src={LoadingImage} />
       </LoadingContainer>
-    )
+    );
   }
 
-  console.log(admin, admins)
+  console.log(admin, admins);
   if (!admin || !admins) return navigate("/");
 
   return (
